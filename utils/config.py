@@ -1,35 +1,29 @@
 import os
-import configparser
+from configparser import ConfigParser
 
-def config(filename='database.ini', section='postgresql'):
-    """
-    Читает настройки из файла database.ini или database.ini.example,
-    если database.ini не существует.
-    """
-    # Создаем парсер
-    parser = configparser.ConfigParser()
 
-    # Проверяем, существует ли database.ini
-    if os.path.exists(filename):
-        parser.read(filename)
-    else:
-        # Если database.ini не существует, пытаемся прочитать database.ini.example
-        example_filename = 'database.ini.example'
-        if os.path.exists(example_filename):
-            parser.read(example_filename)
-        else:
-            raise FileNotFoundError(
-                f"Файл {filename} или {example_filename} не найден. "
-                f"Пожалуйста, создайте файл {filename} на основе {example_filename}."
-            )
+def config(filename=None, section="postgresql") -> dict:
+    """Читает параметры подключения к базе данных из файла database.ini."""
+    # create a parser
+    parser = ConfigParser()
 
-    # Получаем настройки указанной секции
+    if filename is None:
+        # Get the directory of the current script (config.py)
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        # Navigate to the project root directory
+        project_root = os.path.dirname(script_dir)
+        filename = os.path.join(project_root, "database.ini")
+
+    # read config file
+    parser.read(filename)
+
+    # get section, default to postgresql
     db = {}
     if parser.has_section(section):
         params = parser.items(section)
         for param in params:
             db[param[0]] = param[1]
     else:
-        raise Exception(f"Секция {section} не найдена в файле {filename}")
+        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
 
     return db
