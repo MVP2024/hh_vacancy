@@ -1,0 +1,67 @@
+[project]
+name = "hh-search-job"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Valery Medvedev",email = "walery.medvedev@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"  #  Обновите версию Python
+dependencies = ["requests (>=2.32.3,<3.0.0)", "psycopg2-binary (>=2.9.10,<3.0.0)"]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.packages]]
+include = "hh_search_job" # Замените "hh_search_job" на имя вашего пакета
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0" # Обновите версию Python
+requests = "^2.32.3"
+psycopg2-binary = "^2.9.5"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest-cov = "^4.1.0"
+mypy = "^1.8.0"
+flake8 = "^7.0.0"
+black = "^24.2.0"
+isort = "^5.13.0"
+pytest = "^8.0.0"
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.venv
+  | build
+  | dist
+)/'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+strict_optional = true
