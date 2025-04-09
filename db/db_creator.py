@@ -1,19 +1,18 @@
 import psycopg2
-import logging
 from logger.logger import setup_logger
 
 
-def create_database(db_name: str, params: dict):
+def create_database(db_name: str, params: dict) -> None:
     """Создает базу данных, если она не существует."""
     logger = setup_logger(__name__)
     conn = None
     try:
-        # Connect to the default database (postgres) to create a new one
+        # Подключаемся к базе данных по умолчанию (postgres), чтобы создать новую
         conn = psycopg2.connect(dbname='postgres', **params)
         conn.autocommit = True  # Necessary for creating databases
         cur = conn.cursor()
 
-        # Check if the database exists
+        # Проверяем, существует ли база данных
         cur.execute(f"SELECT 1 FROM pg_database WHERE datname='{db_name}'")
         exists = cur.fetchone()
 

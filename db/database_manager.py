@@ -1,5 +1,4 @@
 import psycopg2
-import logging
 from utils.config import config
 from logger.logger import setup_logger
 
@@ -20,7 +19,7 @@ class DatabaseManager:
         self.params = config()
         self.logger = setup_logger(__name__)
 
-    def create_tables(self):
+    def create_tables(self) -> None:
         """Создает таблицы companies и vacancies."""
         conn = None
         try:

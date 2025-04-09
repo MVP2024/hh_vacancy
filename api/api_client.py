@@ -1,4 +1,3 @@
-import logging
 from typing import Any, Dict, List, Optional, Union
 import requests
 from logger.logger import setup_logger
@@ -39,7 +38,7 @@ class HeadHunterAPI:
         vacancies: List[Dict[str, Any]] = []
 
         try:
-            self.logger.debug(f"Попытка использовать публичный API")
+            self.logger.debug("Попытка использовать публичный API")
             vacancies = self._get_public_api_vacancies(search_query, per_page)
             if vacancies:
                 self.logger.info(f"Найдено вакансий: {len(vacancies)}")
