@@ -6,7 +6,7 @@ authors = [
     {name = "Valery Medvedev",email = "walery.medvedev@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.10"  #  Обновите версию Python
+requires-python = ">=3.10"
 dependencies = ["requests (>=2.32.3,<3.0.0)", "psycopg2-binary (>=2.9.10,<3.0.0)"]
 
 [build-system]
@@ -14,10 +14,10 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [[tool.poetry.packages]]
-include = "hh_search_job" # Замените "hh_search_job" на имя вашего пакета
+include = "hh_search_job"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4.0" # Обновите версию Python
+python = ">=3.10,<4.0"
 requests = "^2.32.3"
 psycopg2-binary = "^2.9.5"
 python-dotenv = "^1.0.0"

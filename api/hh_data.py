@@ -1,6 +1,5 @@
 import requests
-import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from logger.logger import setup_logger
 
 

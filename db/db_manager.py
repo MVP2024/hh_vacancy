@@ -1,5 +1,5 @@
+from typing import Optional, List, Tuple
 import psycopg2
-import logging
 from utils.config import config
 from logger.logger import setup_logger
 
@@ -20,7 +20,7 @@ class DBManager:
         self.params = config()
         self.logger = setup_logger(__name__)
 
-    def _get_connection(self):
+    def _get_connection(self) -> Optional[psycopg2.extensions.connection]:
         """
         Создает подключение к базе данных.
         """
@@ -37,7 +37,24 @@ class DBManager:
             self.logger.error(f"Ошибка при подключении к базе данных: {error}")
             return None
 
-    def get_companies_and_vacancies_count(self) -> list[tuple[str, int]] | None:
+    def _process_vacancy_results(self, cur: psycopg2.extensions.cursor) -> Optional[List[Tuple[str, str, Optional[int], Optional[int], str]]]:
+        """
+        Обрабатывает результаты запроса для вакансий.
+        """
+        try:
+            result = cur.fetchall()
+            cur.close()
+            return [(str(company_name),
+                     str(vacancy_name),
+                     int(salary_from) if salary_from else None,
+                     int(salary_to) if salary_to else None,
+                     str(vacancy_url)) for company_name, vacancy_name,
+                    salary_from, salary_to, vacancy_url in result] if result else None
+        except Exception as e:
+            self.logger.error(f"Ошибка при обработке результатов запроса: {e}")
+            return None
+
+    def get_companies_and_vacancies_count(self) -> Optional[List[Tuple[str, int]]]:
         """
         Получает список всех компаний и количество вакансий у каждой компании.
 
@@ -59,7 +76,7 @@ class DBManager:
             """)
             result = cur.fetchall()
             cur.close()
-            return result
+            return [(str(company_name), int(count)) for company_name, count in result] if result else None
         except (Exception, psycopg2.DatabaseError) as error:
             self.logger.error(f"Ошибка в get_companies_and_vacancies_count: {error}")
             return None
@@ -67,7 +84,7 @@ class DBManager:
             if conn is not None:
                 conn.close()
 
-    def get_all_vacancies(self) -> list[tuple[str, str, int | None, int | None, str]] | None:
+    def get_all_vacancies(self) -> Optional[List[Tuple[str, str, Optional[int], Optional[int], str]]]:
         """
         Получает список всех вакансий с указанием названия компании, названия вакансии, зарплаты и ссылки на вакансию.
 
@@ -86,9 +103,7 @@ class DBManager:
                 JOIN vacancies ON companies.company_id = vacancies.company_id
                 ORDER BY company_name, vacancy_name;
             """)
-            result = cur.fetchall()
-            cur.close()
-            return result
+            return self._process_vacancy_results(cur)
         except (Exception, psycopg2.DatabaseError) as error:
             self.logger.error(f"Ошибка в get_all_vacancies: {error}")
             return None
@@ -96,7 +111,7 @@ class DBManager:
             if conn is not None:
                 conn.close()
 
-    def get_avg_salary(self) -> float | None:
+    def get_avg_salary(self) -> Optional[float]:
         """
         Получает среднюю зарплату по вакансиям.
 
@@ -114,9 +129,9 @@ class DBManager:
                 FROM vacancies
                 WHERE salary_from IS NOT NULL AND salary_to IS NOT NULL;
             """)
-            result = cur.fetchone()[0]
+            result = cur.fetchone()
             cur.close()
-            return result
+            return float(result[0]) if result and result[0] is not None else None
         except (Exception, psycopg2.DatabaseError) as error:
             self.logger.error(f"Ошибка в get_avg_salary: {error}")
             return None
@@ -124,7 +139,7 @@ class DBManager:
             if conn is not None:
                 conn.close()
 
-    def get_vacancies_with_higher_salary(self) -> list[tuple[str, str, int | None, int | None, str]] | None:
+    def get_vacancies_with_higher_salary(self) -> Optional[List[Tuple[str, str, Optional[int], Optional[int], str]]]:
         """
         Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям.
 
@@ -141,13 +156,12 @@ class DBManager:
                 SELECT company_name, vacancy_name, salary_from, salary_to, vacancy_url
                 FROM companies
                 JOIN vacancies ON companies.company_id = vacancies.company_id
-                WHERE (salary_from + salary_to) / 2 > (SELECT AVG((salary_from + salary_to) / 2) FROM vacancies WHERE salary_from IS NOT NULL AND salary_to IS NOT NULL)
+                WHERE (salary_from + salary_to) / 2 > (SELECT AVG((salary_from + salary_to) / 2) FROM vacancies
+                WHERE salary_from IS NOT NULL AND salary_to IS NOT NULL)
                 AND salary_from IS NOT NULL AND salary_to IS NOT NULL
                 ORDER BY company_name, vacancy_name;
             """)
-            result = cur.fetchall()
-            cur.close()
-            return result
+            return self._process_vacancy_results(cur)
         except (Exception, psycopg2.DatabaseError) as error:
             self.logger.error(f"Ошибка в get_vacancies_with_higher_salary: {error}")
             return None
@@ -155,7 +169,7 @@ class DBManager:
             if conn is not None:
                 conn.close()
 
-    def get_vacancies_with_keyword(self, keyword: str) -> list[tuple[str, str, int | None, int | None, str]] | None:
+    def get_vacancies_with_keyword(self, keyword: str) -> Optional[List[Tuple[str, str, Optional[int], Optional[int], str]]]:
         """
         Получает список всех вакансий, в названии которых содержатся переданные в метод слова.
 
@@ -175,12 +189,10 @@ class DBManager:
                 SELECT company_name, vacancy_name, salary_from, salary_to, vacancy_url
                 FROM companies
                 JOIN vacancies ON companies.company_id = vacancies.company_id
-                WHERE vacancy_name ILIKE %s
+                WHERE LOWER(vacancy_name) LIKE %s
                 ORDER BY company_name, vacancy_name;
-            """, ('%' + keyword + '%',))
-            result = cur.fetchall()
-            cur.close()
-            return result
+            """, ('%' + keyword.lower() + '%',))
+            return self._process_vacancy_results(cur)
         except (Exception, psycopg2.DatabaseError) as error:
             self.logger.error(f"Ошибка в get_vacancies_with_keyword: {error}")
             return None

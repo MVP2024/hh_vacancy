@@ -1,4 +1,3 @@
-import logging
 import psycopg2
 from logger.logger import setup_logger
 from api.hh_data import HeadHunterData
@@ -35,8 +34,8 @@ def fill_tables(db_name: str, params: dict, hh_data: HeadHunterData):
         for company_name, hh_company_id in companies_data:
             cur.execute(
                 """
-                INSERT INTO companies (company_name) 
-                VALUES (%s) 
+                INSERT INTO companies (company_name)
+                VALUES (%s)
                 ON CONFLICT (company_name) DO NOTHING
                 RETURNING company_id
                 """,
@@ -129,7 +128,7 @@ def user_interaction(db_manager: DBManager):
                 logger.warning("Не удалось получить данные о вакансиях с зарплатой выше средней.")
 
         elif choice == "5":
-            keyword = input("Введите ключевое слово для поиска: ")
+            keyword = input("Введите ключевое слово для поиска: ").lower()
             keyword_vacancies = db_manager.get_vacancies_with_keyword(keyword)
             if keyword_vacancies:
                 for company, vacancy, salary_from, salary_to, url in keyword_vacancies:
@@ -155,7 +154,7 @@ def main():
     db_config = config()
     db_name = db_config["database"]
 
-    # Remove the 'database' key from db_config, as it's used separately
+    # Удаляем ключ «database» из db_config, так как он используется отдельно
     db_params = db_config.copy()
     del db_params["database"]
 
@@ -168,7 +167,7 @@ def main():
 
     db_manager = DBManager(db_name)
 
-    # API configuration
+    # Конфигурация API
     hh_data = HeadHunterData()
 
     # Заполняем таблицы данными

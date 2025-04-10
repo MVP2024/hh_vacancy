@@ -2,22 +2,22 @@ import os
 from configparser import ConfigParser
 
 
-def config(filename=None, section="postgresql") -> dict:
+def config(filename: str | None = None, section: str = "postgresql") -> dict:
     """Читает параметры подключения к базе данных из файла database.ini."""
-    # create a parser
+    # создаём синтаксический анализатор
     parser = ConfigParser()
 
     if filename is None:
-        # Get the directory of the current script (config.py)
+        # Получаем каталог текущего скрипта (config.py)
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        # Navigate to the project root directory
+        # Переходим в корневой каталог проекта
         project_root = os.path.dirname(script_dir)
         filename = os.path.join(project_root, "database.ini")
 
-    # read config file
+    # считываем файл конфигурации
     parser.read(filename)
 
-    # get section, default to postgresql
+    # раздел get, по умолчанию используется postgresql
     db = {}
     if parser.has_section(section):
         params = parser.items(section)
