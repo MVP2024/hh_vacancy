@@ -1,5 +1,7 @@
+from typing import Any, Dict, List
+
 import requests
-from typing import List, Dict, Any
+
 from logger.logger import setup_logger
 
 
@@ -52,7 +54,7 @@ class HeadHunterData:
             response = requests.get(url)
             response.raise_for_status()
             data = response.json()
-            vacancies.extend(data.get('items', []))
+            vacancies.extend(data.get("items", []))
             self.logger.info(f"Получены вакансии компании {company_id}")
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Ошибка при получении вакансий компании {company_id}: {e}")

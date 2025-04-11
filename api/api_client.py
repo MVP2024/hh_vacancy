@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, Optional, Union
+
 import requests
+
 from logger.logger import setup_logger
 
 
@@ -63,8 +65,7 @@ class HeadHunterAPI:
             Список словарей с информацией о вакансиях.
         """
         self.logger.debug(
-            f"Получение вакансий через публичный API. "
-            f"Запрос: {search_query}, кол-во на странице: {per_page}"
+            f"Получение вакансий через публичный API. " f"Запрос: {search_query}, кол-во на странице: {per_page}"
         )
 
         params: Dict[str, Union[str, int]] = {"text": search_query, "per_page": per_page}
