@@ -1,13 +1,14 @@
 import psycopg2
-from logger.logger import setup_logger
+
 from api.hh_data import HeadHunterData
-from db.db_manager import DBManager
-from utils.config import config
 from db.database_manager import DatabaseManager
 from db.db_creator import create_database
+from db.db_manager import DBManager
+from logger.logger import setup_logger
+from utils.config import config
 
 
-def fill_tables(db_name: str, params: dict, hh_data: HeadHunterData):
+def fill_tables(db_name: str, params: dict, hh_data: HeadHunterData) -> None:
     """Заполняет таблицы companies и vacancies данными."""
     logger = setup_logger(__name__)
     conn = None
@@ -39,7 +40,7 @@ def fill_tables(db_name: str, params: dict, hh_data: HeadHunterData):
                 ON CONFLICT (company_name) DO NOTHING
                 RETURNING company_id
                 """,
-                (company_name,)
+                (company_name,),
             )
             result = cur.fetchone()
             if result:
@@ -63,7 +64,7 @@ def fill_tables(db_name: str, params: dict, hh_data: HeadHunterData):
                     INSERT INTO vacancies (company_id, vacancy_name, salary_from, salary_to, vacancy_url)
                     VALUES (%s, %s, %s, %s, %s)
                     """,
-                    (company_id, vacancy_name, salary_from, salary_to, vacancy_url)
+                    (company_id, vacancy_name, salary_from, salary_to, vacancy_url),
                 )
 
         conn.commit()
@@ -78,7 +79,7 @@ def fill_tables(db_name: str, params: dict, hh_data: HeadHunterData):
             conn.close()
 
 
-def user_interaction(db_manager: DBManager):
+def user_interaction(db_manager: DBManager) -> None:
     """Функция взаимодействия с пользователем."""
     logger = setup_logger(__name__)
     while True:
@@ -146,7 +147,7 @@ def user_interaction(db_manager: DBManager):
             logger.warning("Некорректный выбор.")
 
 
-def main():
+def main() -> None:
     """Основная функция программы."""
     logger = setup_logger("main")
     logger.info("Запуск программы.")  # Пример логирования

@@ -1,6 +1,7 @@
 import psycopg2
-from utils.config import config
+
 from logger.logger import setup_logger
+from utils.config import config
 
 
 class DatabaseManager:
@@ -25,10 +26,10 @@ class DatabaseManager:
         try:
             conn = psycopg2.connect(
                 dbname=self.database_name,
-                user=self.params.get('user'),
-                password=self.params.get('password'),
-                host=self.params.get('host'),
-                port=self.params.get('port')
+                user=self.params.get("user"),
+                password=self.params.get("password"),
+                host=self.params.get("host"),
+                port=self.params.get("port"),
             )
             cur = conn.cursor()
 
@@ -37,14 +38,17 @@ class DatabaseManager:
             cur.execute("DROP TABLE IF EXISTS companies")
 
             # Создаем таблицы
-            cur.execute("""
+            cur.execute(
+                """
                 CREATE TABLE companies (
                     company_id SERIAL PRIMARY KEY,
                     company_name VARCHAR(255) NOT NULL UNIQUE
                 )
-            """)
+            """
+            )
 
-            cur.execute("""
+            cur.execute(
+                """
                 CREATE TABLE vacancies (
                     vacancy_id SERIAL PRIMARY KEY,
                     company_id INT REFERENCES companies(company_id),
@@ -53,7 +57,8 @@ class DatabaseManager:
                     salary_to INT,
                     vacancy_url VARCHAR(255)
                 )
-            """)
+            """
+            )
 
             conn.commit()
             self.logger.info("Таблицы 'companies' и 'vacancies' успешно созданы.")

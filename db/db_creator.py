@@ -1,4 +1,5 @@
 import psycopg2
+
 from logger.logger import setup_logger
 
 
@@ -8,7 +9,7 @@ def create_database(db_name: str, params: dict) -> None:
     conn = None
     try:
         # Подключаемся к базе данных по умолчанию (postgres), чтобы создать новую
-        conn = psycopg2.connect(dbname='postgres', **params)
+        conn = psycopg2.connect(dbname="postgres", **params)
         conn.autocommit = True  # Necessary for creating databases
         cur = conn.cursor()
 
